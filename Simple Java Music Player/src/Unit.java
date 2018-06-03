@@ -1,28 +1,16 @@
 
-public class Unit {
+public interface Unit {
 	
-	Unit next;
-	Unit prev;
+
 	
-	public Unit(){
-		next = prev = null;
-	}
 	
-	public int numSongs() {
-		return 0;
-	}
+	public int numSongs();
 	
-	public Unit addSong(Song s) {
-		return new SingleSongUnit(s);
-	}
+	public Unit addSong(Song s);
 	
-	public Unit removeSong(Song s) {
-		return null;
-	}
+	public Unit removeSong(Song s);
 	
-	public void play(){
-		System.out.println("Playing will happen here...");
-	}
+	public void play();
 	
 	
 }

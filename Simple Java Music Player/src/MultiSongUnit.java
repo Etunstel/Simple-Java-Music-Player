@@ -5,7 +5,7 @@ import java.util.ArrayList;
  * 
  * 
  */
-public class MultiSongUnit extends Unit {
+public class MultiSongUnit implements Unit {
 	
 	private ArrayList<Song> songs;
 	

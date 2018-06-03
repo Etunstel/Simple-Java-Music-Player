@@ -2,18 +2,27 @@
  * Describes essential information for songs. Used for display purposes,
  * and for looking up songs from the music library.
  */
+
+import java.time.Duration; 
 public class Song implements Comparable<Song> {
 
 	private String title;
 	private String artist;
 	private String album;
-	private String duration; 
+	private Duration duration; 
 	
 	public Song() {
 		this.title = null;
 		this.artist = null;
 		this.album = null;
 		this.duration = null;
+	}
+	
+	public Song(String t, String a, String al, long d) {
+		this.title = t;
+		this.artist = a;
+		this.album = al;
+		this.duration = Duration.ofSeconds(d);
 	}
 	
 	
@@ -35,7 +44,7 @@ public class Song implements Comparable<Song> {
 		return title;
 	}
 	
-	public String getDuration() {
+	public Duration getDuration() {
 		return this.duration;
 	}
 	
