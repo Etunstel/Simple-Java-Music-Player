@@ -71,5 +71,9 @@ public class Song implements Comparable<Song> {
 		return title.compareTo(other.getTitle());
 	}
 	
+	public String toString() {
+		return "" + title + " | " + artist + " | " + album + " | " + duration.toString();
+	}
+	
 	
 }

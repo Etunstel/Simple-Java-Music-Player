@@ -4,15 +4,18 @@
  * 
  */
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
-
 import java.util.Iterator;
 import java.util.ListIterator;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
+
 import java.util.LinkedList;
 import java.util.ArrayList;
 
@@ -67,7 +70,7 @@ public class Playlist {
 	}
 	
 	//throw multiple?
-	public Playlist createPlaylistFromJSON(String fileName) throws Exception {
+	public static Playlist createPlaylistFromJSON(String fileName) throws Exception {
 		
 		Playlist p = new Playlist();
 		
@@ -93,7 +96,7 @@ public class Playlist {
 				String title = (String)song.get("title");
 				String artist = (String)song.get("artist");
 				String album = (String)song.get("album");
-				long duration = Long.parseLong((String) song.get("duration"));
+				long duration = (long)song.get("duration");
 				
 				Song s = new Song(title, artist, album, duration);
 				
@@ -114,7 +117,7 @@ public class Playlist {
 					String title = (String)song.get("title");
 					String artist = (String)song.get("artist");
 					String album = (String)song.get("album");
-					long duration = Long.parseLong((String) song.get("duration"));
+					long duration = (long)song.get("duration");
 					
 					Song s = new Song(title, artist, album, duration);
 					songList.add(s);
@@ -127,7 +130,7 @@ public class Playlist {
 		return p;
 	}
 	
-	public void savePlaylistAsJSON() throws FileNotFoundException {
+	public void savePlaylistAsJSON(String fileName) throws FileNotFoundException {
 		
 		Unit curr;
 		int numSongs;
@@ -189,15 +192,51 @@ public class Playlist {
 		root.put("title", this.title);
 		root.put("units", units);
 		
-		PrintWriter pw = new PrintWriter(this.title.replace(" ", "") + ".json");
-		pw.write(root.toJSONString());
+		File playlistFile = new File(fileName);
+			
+		try{
+		playlistFile.createNewFile();
+		} catch(IOException e) {
+			System.out.println("Failed to create new file");
+			return;
+		}
+		
+		PrintWriter pw = new PrintWriter(playlistFile);
+		pw.print(root.toJSONString().toString());
 		pw.flush();
 		pw.close();
-		
-		return;
 	}
 	
-	
+	// WRITE UNIT toString() METHODS
+	public String toString() {
+		String s = "";
+		
+		s = s + "Playlist Title: " + this.title + "\n";
+		
+		
+		
+		ListIterator<Unit> iter = playlist.listIterator();
+		
+		while (iter.hasNext()) {
+			
+			Unit current = iter.next();
+			int numSongs = current.numSongs();
+			
+			if(numSongs == 1) {
+				SingleSongUnit single = (SingleSongUnit) current;
+				s = s + single.getSong().toString() + "\n";
+				
+			} else if (numSongs > 1) {
+				MultiSongUnit multi = (MultiSongUnit) current;
+				for(Song song : multi.getSongs()) {
+					s = s + song.toString() + "\n";
+				}
+			}
+			
+		}
+		
+		return s;
+	}
 	
 	
 	public LinkedList<Unit> constructPlaylist() {

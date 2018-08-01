@@ -2,8 +2,6 @@ import java.util.ArrayList;
 
 /*
  * Unit with multiple songs
- * 
- * 
  */
 public class MultiSongUnit implements Unit {
 	
