@@ -98,7 +98,7 @@ public class MusicLibrary {
 	
 	
 	public static void main(String args[]) {
-		String musicPath = "--";
+		String musicPath = "---";
 		Path p = Paths.get(musicPath);
 		
 		MusicLibrary m = new MusicLibrary(p);
