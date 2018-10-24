@@ -1,8 +1,10 @@
-import java.util.ArrayList;
 
 /*
  * Unit with multiple songs
  */
+
+import java.util.ArrayList;
+
 public class MultiSongUnit implements Unit {
 	
 	private ArrayList<Song> songs;
@@ -39,8 +41,8 @@ public class MultiSongUnit implements Unit {
 		}
 	}
 	
-	public void play() {
-		System.out.println("Playing a multiple songs will happen here...");
+	public UnitType getUnitType(){
+		return UnitType.MULTI;
 	}
 	
 	public boolean equals(Object other) {
@@ -59,6 +61,10 @@ public class MultiSongUnit implements Unit {
 		MultiSongUnit o = (MultiSongUnit) other;
 		
 		return this.songs.equals(o.getSongs());
+	}
+	
+	public String toString() {
+		return "MultiSongUnit: " + songs;
 	}
 	
 	

@@ -1,7 +1,7 @@
-/*
- * Constructs UnitLists from saved JSON files, can export current UnitList as a new JSON file
- * Also stores information about whether the playlist is set to shuffle/repeat
- * 
+/* 
+ *  Represents a playlist as a list of Units
+ *  Has a static methods for creating Playlist objects from saved JSON files, 
+ *  and a non-static method for exporting the current Playlist to a new JSON file.
  */
 
 import java.io.File;
@@ -9,6 +9,8 @@ import java.io.FileReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -18,22 +20,26 @@ import org.json.simple.parser.*;
 
 import java.util.LinkedList;
 import java.util.ArrayList;
-
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.*;
 
 public class Playlist {
 	
-	private String title; 
-	private boolean shuffle;
-	private boolean repeat; 
-	
-	
-	private LinkedList<Unit> playlist;
+	private String title; 	
+	private ObservableList<Unit> playlist;
 	
 	public Playlist() {
-		
-		shuffle = false;
-		repeat = false;
-		playlist = new LinkedList<Unit>();
+		title = "";
+		playlist = FXCollections.observableArrayList(new LinkedList<Unit>());
+	}
+	
+	public Playlist(String title) {
+		this.title = title;
+		playlist = FXCollections.observableArrayList(new LinkedList<Unit>());
+	}
+	
+	public boolean addSingleSong(Song s) {
+		return playlist.add(new SingleSongUnit(s));
 	}
 	
 	public boolean addUnit(Unit u) {
@@ -43,24 +49,8 @@ public class Playlist {
 	public boolean removeUnit(Unit u) {
 		return playlist.remove(u);
 	}
-	
-	public boolean getShuffle() {
-		return shuffle;
-	}
-	
-	public void toggleShuffle() {
-		shuffle = !shuffle;
-	}
-	
-	public boolean getRepeat() {
-		return repeat;
-	}
-	
-	
-	public void toggleRepeat() {
-		repeat = !repeat;
-	}
-	
+
+
 	public void setTitle(String t) {
 		this.title = t;
 	}
@@ -69,12 +59,40 @@ public class Playlist {
 		return title;
 	}
 	
+	public SimpleStringProperty getTitleAsStringProperty() {
+		return new SimpleStringProperty(title);
+	}
+	
+	public ObservableList<Unit> getPlaylist() {
+		return playlist;
+	}
+	
+	public ObservableList<Unit> getPlaylistCopy() {
+		return FXCollections.observableArrayList(playlist);
+	}
+	
+	public ObservableList<Unit> getShuffledCopy() {
+		ObservableList<Unit> copy = FXCollections.observableArrayList(playlist);
+		FXCollections.shuffle(copy);
+		return copy;
+	}
+	
+	//Shuffles and adds u as the first unit
+	public ObservableList<Unit> getShuffledCopy(Unit u) {
+		ObservableList<Unit> copy = FXCollections.observableArrayList(playlist);
+		copy.remove(u);
+		FXCollections.shuffle(copy);	
+		copy.add(0, u);
+		return copy;
+	}
+	
+	
 	//throw multiple?
-	public static Playlist createPlaylistFromJSON(String fileName) throws Exception {
+	public static Playlist createPlaylistFromJSON(File f) throws FileNotFoundException, ParseException, IOException{
 		
 		Playlist p = new Playlist();
 		
-		Object obj = new JSONParser().parse(new FileReader(fileName));
+		Object obj = new JSONParser().parse(new FileReader(f));
 		
 		JSONObject root = (JSONObject) obj;
 		
@@ -96,9 +114,9 @@ public class Playlist {
 				String title = (String)song.get("title");
 				String artist = (String)song.get("artist");
 				String album = (String)song.get("album");
-				long duration = (long)song.get("duration");
+				Double duration = (double)song.get("duration");
 				
-				Song s = new Song(title, artist, album, duration);
+				Song s = new Song(title, artist, album, duration.doubleValue());
 				
 				SingleSongUnit u = new SingleSongUnit(s);
 				
@@ -117,9 +135,9 @@ public class Playlist {
 					String title = (String)song.get("title");
 					String artist = (String)song.get("artist");
 					String album = (String)song.get("album");
-					long duration = (long)song.get("duration");
+					Double duration = (double)song.get("duration");
 					
-					Song s = new Song(title, artist, album, duration);
+					Song s = new Song(title, artist, album, duration.doubleValue());
 					songList.add(s);
 				}
 				
@@ -156,7 +174,7 @@ public class Playlist {
 				currentSong.put("title" , s.getTitle());
 				currentSong.put("artist", s.getArtist());
 				currentSong.put("album", s.getAlbum());
-				currentSong.put("duration", s.getDuration().getSeconds());
+				currentSong.put("duration", s.getDuration().toSeconds());
 					
 				currentUnit.put("type", "single"); //single song unit
 				currentUnit.put("song", currentSong);
@@ -177,7 +195,7 @@ public class Playlist {
 					currentSong.put("title" , s.getTitle());
 					currentSong.put("artist", s.getArtist());
 					currentSong.put("album", s.getAlbum());
-					currentSong.put("duration", s.getDuration().getSeconds());
+					currentSong.put("duration", s.getDuration().toSeconds());
 					
 					unitSongs.add(currentSong);
 				}
@@ -192,12 +210,18 @@ public class Playlist {
 		root.put("title", this.title);
 		root.put("units", units);
 		
-		File playlistFile = new File(fileName);
+		Path relative = Paths.get("");
+		String s = relative.toAbsolutePath().toString() + "\\Playlists" + "\\" + fileName + ".json";
+		System.out.println(s);
+		File playlistFile = new File(s);
 			
 		try{
-		playlistFile.createNewFile();
+		playlistFile.getParentFile().mkdirs();
+		if(!playlistFile.exists())
+			playlistFile.createNewFile();
 		} catch(IOException e) {
 			System.out.println("Failed to create new file");
+			e.printStackTrace();
 			return;
 		}
 		
@@ -205,6 +229,25 @@ public class Playlist {
 		pw.print(root.toJSONString().toString());
 		pw.flush();
 		pw.close();
+	}
+	
+	public static Unit combineUnits(ObservableList<Unit> units) {
+		if (units.size() == 1) {
+			return units.get(0);
+		} 
+		
+		ArrayList<Song> songs = new ArrayList<Song>();
+		
+		for(Unit u: units) {
+			if (u.getUnitType() == UnitType.SINGLE) {
+				SingleSongUnit s = (SingleSongUnit) u;
+				songs.add(s.getSong());
+			} else {
+				MultiSongUnit s = (MultiSongUnit) u;
+				songs.addAll(s.getSongs());
+			}
+		}
+		return new MultiSongUnit(songs);
 	}
 	
 	// WRITE UNIT toString() METHODS
@@ -236,11 +279,6 @@ public class Playlist {
 		}
 		
 		return s;
-	}
-	
-	
-	public LinkedList<Unit> constructPlaylist() {
-		return playlist;
 	}
 	
 	

@@ -3,7 +3,7 @@
  * and for looking up songs from the music library.
  */
 
-import java.time.Duration; 
+import javafx.util.Duration;
 public class Song implements Comparable<Song> {
 
 	private String title;
@@ -18,16 +18,29 @@ public class Song implements Comparable<Song> {
 		this.duration = null;
 	}
 	
-	public Song(String t, String a, String al, long d) {
+	public Song(String t, String a, String al, Duration d) {
 		this.title = t;
 		this.artist = a;
 		this.album = al;
-		this.duration = Duration.ofSeconds(d);
+		this.duration = d;
 	}
+	
+	public Song(String t, String a, String al, double d) {
+		this.title = t;
+		this.artist = a;
+		this.album = al;
+		this.duration = Duration.seconds(d);
+	}
+	
+
 	
 	
 	public String getTitle() {
 		return this.title;
+	}
+	
+	public void setTitle(String title) {
+		this.title = title;
 	}
 	
 	public String getArtist() {
@@ -37,15 +50,27 @@ public class Song implements Comparable<Song> {
 		return artist;
 	}
 	
+	public void setArtist(String artist){
+		this.artist = artist;
+	}
+	
 	public String getAlbum() {
 		if(album == null) {
 			return "Unknown";
 		}
-		return title;
+		return album;
+	}
+	
+	public void setAlbum(String album){
+		this.album = album;
 	}
 	
 	public Duration getDuration() {
 		return this.duration;
+	}
+	
+	public void setDuration(Duration d) {
+		this.duration = d;
 	}
 	
 	public boolean equals(Object other) {
@@ -67,12 +92,16 @@ public class Song implements Comparable<Song> {
 	}
 	
 	public int compareTo(Song other) {
-
 		return title.compareTo(other.getTitle());
 	}
 	
 	public String toString() {
 		return "" + title + " | " + artist + " | " + album + " | " + duration.toString();
+	}
+	
+	public static String formatDuration(Duration d) {
+		long seconds = (long)d.toSeconds();
+		return String.format("%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, (seconds % 60));
 	}
 	
 	

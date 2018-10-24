@@ -1,4 +1,4 @@
-
+// Defines a component of a Playlist, currently implemented by SingleSongUnit and MultiSongUnit
 public interface Unit {
 
 	public int numSongs();
@@ -7,6 +7,6 @@ public interface Unit {
 	
 	public Unit removeSong(Song s);
 	
-	public void play();
+	public UnitType getUnitType();
 	
 }

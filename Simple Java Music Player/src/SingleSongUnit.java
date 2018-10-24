@@ -7,7 +7,6 @@ import java.util.ArrayList;
 
 public class SingleSongUnit implements Unit {
 
-	
 	private Song song; 
 	
 	public SingleSongUnit(){
@@ -37,10 +36,10 @@ public class SingleSongUnit implements Unit {
 		return null;
 	}
 	
-	public void play() {
-		System.out.println("Playing a single song will happen here...");
+	public UnitType getUnitType(){
+		return UnitType.SINGLE;
 	}
-	
+
 	public boolean equals(Object other) {
 		if (this == other) {
 			return true;
@@ -57,6 +56,10 @@ public class SingleSongUnit implements Unit {
 		SingleSongUnit o = (SingleSongUnit) other;
 		
 		return this.song.equals(o.getSong());
+	}
+	
+	public String toString() {
+		return "SingleSongUnit: " + song;
 	}
 
 }
